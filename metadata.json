@@ -1,0 +1,6 @@
+{
+  "name": "Spacetime Lab",
+  "description": "Interactive General Relativity laboratory featuring a 3D Spacetime Mesh Sandbox (Solar System, Black Hole, Wormhole, GW ripples, Live Mass experiments), observer raytracing, geodesics, and curvature invariants.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
