@@ -23,7 +23,11 @@ import {
   FlaskConical,
   GitMerge,
   Sparkles,
+  Settings,
+  Terminal,
+  Globe,
 } from 'lucide-react';
+import { WorkstationView } from './components/views/WorkstationView';
 import { OpticalView } from './components/views/OpticalView';
 import { EmbeddingView, SandboxScenario } from './components/views/EmbeddingView';
 import { CurvatureView } from './components/views/CurvatureView';
@@ -34,6 +38,9 @@ import { SxsComparisonView } from './components/views/SxsComparisonView';
 import { ValidationLabModal } from './components/views/ValidationLabModal';
 import { EhtComparisonModal } from './components/views/EhtComparisonModal';
 import { CurvatureGuideModal } from './components/views/CurvatureGuideModal';
+import { DomainGuideModal } from './components/views/DomainGuideModal';
+
+export type MainNavTab = 'explore' | 'simulate' | 'observations' | 'theory' | 'data';
 
 export type LabTab =
   | 'optical'
@@ -45,12 +52,42 @@ export type LabTab =
   | 'sxs';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<LabTab>('optical');
+  const [mainTab, setMainTab] = useState<MainNavTab>('explore');
+  const [activeTab, setActiveTab] = useState<LabTab>('embedding');
   const [sandboxScenario, setSandboxScenario] = useState<SandboxScenario>('solar_system');
   const [isValidationModalOpen, setIsValidationModalOpen] = useState(false);
   const [isEhtModalOpen, setIsEhtModalOpen] = useState(false);
   const [isCurvatureGuideOpen, setIsCurvatureGuideOpen] = useState(false);
+  const [isDomainModalOpen, setIsDomainModalOpen] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+
+  const mainTabs: { id: MainNavTab; label: string; description: string }[] = [
+    {
+      id: 'explore',
+      label: 'Explore',
+      description: 'Unified Research Console with multi-window raytracer, 3+1 foliation, and telemetry dock',
+    },
+    {
+      id: 'simulate',
+      label: 'Simulate',
+      description: 'Full-screen 3D Spacetime Sandbox with Solar System, Black Hole, and Live Mass placement',
+    },
+    {
+      id: 'observations',
+      label: 'Observations',
+      description: 'LIGO GWOSC strain ripples, quadrupole distortions, and Event Horizon Telescope data',
+    },
+    {
+      id: 'theory',
+      label: 'Theory',
+      description: 'Curvature Invariant Kretschmann scalar fields, causal light cones, and coordinate transformations',
+    },
+    {
+      id: 'data',
+      label: 'Data',
+      description: 'SXS Numerical Relativity waveforms vs 3.5PN post-Newtonian models',
+    },
+  ];
 
   const tabs: {
     id: LabTab;
@@ -104,268 +141,205 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-neutral-950 text-neutral-100 overflow-hidden font-sans select-none">
-      {/* Top Navigation Bar */}
-      <header className="h-14 border-b border-neutral-800/80 bg-neutral-900/80 backdrop-blur px-4 flex items-center justify-between shrink-0 z-20">
+      {/* Top Navigation Bar matching ChatGPT reference */}
+      <header className="h-12 border-b border-[#152238] bg-[#090f1a] px-4 flex items-center justify-between shrink-0 z-30 font-mono">
+        {/* Brand Logo & Title */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center shadow-inner">
-              <Atom className="w-4 h-4 text-sky-400" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 shadow-sm">
+              <Atom className="w-4 h-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-semibold tracking-wide text-white">SPACETIME LAB</h1>
-                <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-300 px-1.5 py-0.5 rounded border border-neutral-700">
-                  AnyaLabs GR v2.0
-                </span>
-              </div>
-              <p className="text-[10px] text-neutral-400 font-mono hidden xl:block">
-                Physical Model → Metric Equations → Numerical Computation → Validated Result
-              </p>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-sm font-bold tracking-wider text-white">SPACETIME LAB</span>
+              <span className="text-[11px] text-slate-400 font-sans">by AnyaLabs</span>
             </div>
           </div>
         </div>
 
-        {/* View Tabs */}
-        <nav className="flex items-center gap-1 bg-neutral-950 p-1 rounded-lg border border-neutral-800 text-xs overflow-x-auto max-w-[50vw]">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+        {/* Center Primary Navigation Tabs: Explore, Simulate, Observations, Theory, Data */}
+        <nav className="flex items-center gap-1 bg-[#05080f] p-1 rounded-xl border border-[#16253c] text-xs">
+          {mainTabs.map((tab) => {
+            const isActive = mainTab === tab.id;
             return (
               <button
                 key={tab.id}
-                id={`tab-${tab.id}-btn`}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md font-medium transition-all shrink-0 ${
+                id={`main-nav-${tab.id}-btn`}
+                onClick={() => setMainTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-medium transition-all ${
                   isActive
-                    ? 'bg-neutral-800 text-white shadow-sm border border-neutral-700'
-                    : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/50'
+                    ? 'bg-[#0e2c56] text-sky-200 border border-sky-500/40 shadow-sm font-semibold'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-[#0c1422]'
                 }`}
                 title={tab.description}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-sky-400' : 'text-neutral-500'}`} />
-                <span className="hidden md:inline">{tab.label}</span>
+                <span>{tab.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Scientific Actions */}
-        <div className="flex items-center gap-2">
-          {/* Spacetime Curvature Guide Button */}
+        {/* Top-Right Telemetry & Action Badges */}
+        <div className="flex items-center gap-3 text-xs">
+          {/* WebGPU Status Indicator */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0c1524] border border-[#17263d] text-emerald-300 text-[11px]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold">WebGPU</span>
+          </div>
+
+          {/* FPS Counter */}
+          <div className="px-2 py-1 rounded-lg bg-[#0c1524] border border-[#17263d] text-slate-300 text-[11px] font-mono">
+            <span>FPS: 58</span>
+          </div>
+
+          {/* Curvature Guide button */}
           <button
             id="open-curvature-guide-btn"
             onClick={() => setIsCurvatureGuideOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-sky-950/40 border border-sky-800 text-sky-300 hover:bg-sky-900/50 text-xs font-mono transition-colors shadow-sm"
-            title="Learn how spacetime curvature is mathematically represented and visually observed across the lab"
+            className="p-1.5 rounded-lg bg-[#0c1524] border border-[#17263d] text-slate-400 hover:text-white transition-colors"
+            title="Spacetime Curvature Guide"
           >
-            <Compass className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline">How to See Curvature</span>
+            <Compass className="w-4 h-4 text-sky-400" />
           </button>
 
-          {/* Validation Suite */}
+          {/* Validation Suite / Settings modal */}
           <button
             id="open-validation-modal-btn"
             onClick={() => setIsValidationModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-950/40 border border-emerald-800 text-emerald-300 hover:bg-emerald-900/50 text-xs font-mono transition-colors"
-            title="Open Live Numerical Relativity Validation Suite (CLAUDE.md §16)"
+            className="p-1.5 rounded-lg bg-[#0c1524] border border-[#17263d] text-slate-400 hover:text-white transition-colors"
+            title="Validation Suite & Settings"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden lg:inline">Validation Suite</span>
-            <span className="text-[10px] bg-emerald-900/80 text-emerald-200 px-1.5 py-0.2 rounded">10/10 PASS</span>
-          </button>
-
-          {/* EHT Model vs Data */}
-          <button
-            id="open-eht-modal-btn"
-            onClick={() => setIsEhtModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-amber-950/40 border border-amber-800 text-amber-300 hover:bg-amber-900/50 text-xs font-mono transition-colors"
-            title="Open EHT Model-to-Data Comparison (CLAUDE.md §14)"
-          >
-            <Eye className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden lg:inline">EHT Model vs Data</span>
-          </button>
-
-          <button
-            onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-            className={`p-1.5 rounded-md border text-neutral-400 hover:text-white transition-colors ${
-              isInfoExpanded ? 'bg-neutral-800 border-neutral-700 text-white' : 'border-neutral-800 bg-neutral-950'
-            }`}
-            title="Toggle Physics Principles Panel"
-          >
-            <BookOpen className="w-4 h-4" />
+            <Settings className="w-4 h-4 text-slate-300" />
           </button>
         </div>
       </header>
 
-      {/* Spacetime Lab Quick Scenario & Live Experiment Hub */}
-      <div className="h-10 border-b border-neutral-800/80 bg-neutral-950 px-4 flex items-center justify-between text-xs font-mono shrink-0 z-10 overflow-x-auto">
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Active Scenario:
-          </span>
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Kerr Black Hole */}
-            <button
-              id="quick-scen-kerr-btn"
-              onClick={() => setActiveTab('optical')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'optical'
-                  ? 'bg-amber-950/80 border border-amber-700 text-amber-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Cinematic Kerr Black Hole & Relativistic Accretion Raytracer (AnyaLabs Mission Control)"
-            >
-              <Disc className="w-3.5 h-3.5 text-amber-400" />
-              <span>Kerr Black Hole</span>
-            </button>
-
-            {/* Solar System */}
-            <button
-              id="quick-scen-solar-btn"
-              onClick={() => {
-                setActiveTab('embedding');
-                setSandboxScenario('solar_system');
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'embedding' && sandboxScenario === 'solar_system'
-                  ? 'bg-sky-950/80 border border-sky-700 text-sky-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Interactive 3D Solar System spacetime curvature mesh"
-            >
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-              <span>Solar System</span>
-            </button>
-
-            {/* Singularity Funnel */}
-            <button
-              id="quick-scen-funnel-btn"
-              onClick={() => {
-                setActiveTab('embedding');
-                setSandboxScenario('black_hole');
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'embedding' && sandboxScenario === 'black_hole'
-                  ? 'bg-sky-950/80 border border-sky-700 text-sky-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Extreme deep spacetime singularity funnel"
-            >
-              <Layers className="w-3.5 h-3.5 text-sky-400" />
-              <span>Singularity Funnel</span>
-            </button>
-
-            {/* Blank Mesh: Live Mass Lab */}
-            <button
-              id="quick-scen-blank-btn"
-              onClick={() => {
-                setActiveTab('embedding');
-                setSandboxScenario('blank_sandbox');
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'embedding' && sandboxScenario === 'blank_sandbox'
-                  ? 'bg-emerald-950/80 border border-emerald-600 text-emerald-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Blank spacetime canvas: place stars, black holes, and test live orbital geodesics"
-            >
-              <FlaskConical className="w-3.5 h-3.5 text-emerald-400" />
-              <span>🧪 Blank Mesh (Live Lab)</span>
-            </button>
-
-            {/* Wormhole Bridge */}
-            <button
-              id="quick-scen-wormhole-btn"
-              onClick={() => {
-                setActiveTab('embedding');
-                setSandboxScenario('wormhole');
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'embedding' && sandboxScenario === 'wormhole'
-                  ? 'bg-purple-950/80 border border-purple-700 text-purple-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Folded spacetime with Einstein-Rosen bridge connecting two universe sheets"
-            >
-              <GitMerge className="w-3.5 h-3.5 text-purple-400" />
-              <span>Wormhole Bridge</span>
-            </button>
-
-            {/* Gravitational Waves */}
-            <button
-              id="quick-scen-gw-btn"
-              onClick={() => setActiveTab('gravitational_waves')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all text-xs ${
-                activeTab === 'gravitational_waves'
-                  ? 'bg-cyan-950/80 border border-cyan-700 text-cyan-300 font-semibold shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900 border border-transparent'
-              }`}
-              title="Calibrated LIGO GW150914 Gravitational Wave strain & spacetime quadrupole ripples"
-            >
-              <Waves className="w-3.5 h-3.5 text-cyan-400" />
-              <span>GW Ripples</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="hidden xl:flex items-center gap-2 text-[11px] text-neutral-400 shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Active Engine: <strong className="text-white">{activeTab === 'optical' ? 'Kerr Raytracer' : activeTab === 'embedding' ? `3D Mesh (${sandboxScenario})` : activeTab}</strong></span>
-        </div>
-      </div>
-
-      {/* Physics Principles Drawer (Collapsible) */}
-      {isInfoExpanded && (
-        <div className="border-b border-neutral-800 bg-neutral-900/95 backdrop-blur px-6 py-4 text-xs font-mono text-neutral-300 z-10 animate-fade-in shadow-xl">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-1.5">
-              <span className="text-sky-400 font-semibold text-[11px] uppercase tracking-wider block">
-                1. No Invented Physics (§1.1)
-              </span>
-              <p className="text-neutral-400 leading-relaxed text-[11px] font-sans">
-                Every ray, orbit, and invariant is integrated directly from mathematically exact general relativistic
-                metrics: Schwarzschild, Kerr, and Kerr-Schild in signature (-+++) with geometrized units G = c = 1.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <span className="text-emerald-400 font-semibold text-[11px] uppercase tracking-wider block">
-                2. Observer Frames vs Geometry (§4)
-              </span>
-              <p className="text-neutral-400 leading-relaxed text-[11px] font-sans">
-                Observations strictly depend on the physical observer&apos;s 4-velocity u^μ and local orthonormal tetrad.
-                Doppler shifts (1+z) and relativistic beaming (1+z)⁻⁴ are explicitly calculated for static, free-falling,
-                and orbiting observers.
-              </p>
-            </div>
-            <div className="space-y-1.5">
-              <span className="text-amber-400 font-semibold text-[11px] uppercase tracking-wider block">
-                3. Curvature vs Coordinates (§6.1)
-              </span>
-              <p className="text-neutral-400 leading-relaxed text-[11px] font-sans">
-                The event horizon r = 2M is a coordinate artifact, not a physical curvature singularity.
-                The true coordinate-independent Kretschmann scalar K = R_abcd R^abcd remains completely finite (K = 48M²/r⁶)
-                at the horizon, diverging only at the genuine physical singularity r = 0.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Laboratory Viewport */}
-      <main className="flex-1 relative overflow-hidden">
-        {activeTab === 'optical' && <OpticalView />}
-        {activeTab === 'embedding' && (
-          <EmbeddingView
-            activeScenarioProp={sandboxScenario}
-            onScenarioChange={(scen) => setSandboxScenario(scen)}
+      {/* Main Viewport Container */}
+      <main className="flex-1 relative overflow-hidden bg-[#05080f]">
+        {/* TAB 1: Unified Research Workstation Console (ChatGPT reference UI) */}
+        {mainTab === 'explore' && (
+          <WorkstationView
+            onOpenValidationModal={() => setIsValidationModalOpen(true)}
+            onOpenEhtModal={() => setIsEhtModalOpen(true)}
+            onOpenCurvatureGuide={() => setIsCurvatureGuideOpen(true)}
+            onOpenDomainGuide={() => setIsDomainModalOpen(true)}
           />
         )}
-        {activeTab === 'curvature' && <CurvatureView />}
-        {activeTab === 'causal' && <CausalDiagramView />}
-        {activeTab === 'orbits' && <OrbitsView />}
-        {activeTab === 'gravitational_waves' && <GravitationalWavesView />}
-        {activeTab === 'sxs' && <SxsComparisonView />}
+
+        {/* TAB 2: Full-screen 3D Spacetime Sandbox */}
+        {mainTab === 'simulate' && (
+          <div className="h-full flex flex-col">
+            {/* Quick Scenario bar for simulate */}
+            <div className="h-9 border-b border-[#152238] bg-[#090f1a] px-4 flex items-center justify-between text-xs font-mono shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Scenario:
+                </span>
+                <div className="flex items-center gap-1">
+                  {[
+                    { id: 'solar_system', label: 'Solar System' },
+                    { id: 'black_hole', label: 'Black Hole' },
+                    { id: 'wormhole', label: 'Wormhole' },
+                    { id: 'gw_waves', label: 'GW Ripples' },
+                    { id: 'blank_sandbox', label: '🧪 Blank Mesh (Live Lab)' },
+                  ].map((scen) => (
+                    <button
+                      key={scen.id}
+                      onClick={() => setSandboxScenario(scen.id as SandboxScenario)}
+                      className={`px-2 py-0.5 rounded text-[10px] transition-colors ${
+                        sandboxScenario === scen.id
+                          ? 'bg-[#123668] border border-sky-500 text-sky-200 font-semibold'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {scen.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 relative">
+              <EmbeddingView
+                activeScenarioProp={sandboxScenario}
+                onScenarioChange={(scen) => setSandboxScenario(scen)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: Observations (LIGO & EHT) */}
+        {mainTab === 'observations' && (
+          <div className="h-full flex flex-col">
+            <div className="h-9 border-b border-[#152238] bg-[#090f1a] px-4 flex items-center justify-between text-xs font-mono shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-400 font-semibold uppercase">Observatory Mode:</span>
+                <button
+                  onClick={() => setIsEhtModalOpen(true)}
+                  className="px-2.5 py-0.5 rounded bg-amber-950/60 border border-amber-700 text-amber-300 text-[10px] font-semibold hover:bg-amber-900/60"
+                >
+                  Open EHT M87* Synthetic Comparison
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 relative">
+              <GravitationalWavesView />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: Theory (Curvature & Causal Light Cones) */}
+        {mainTab === 'theory' && (
+          <div className="h-full flex flex-col">
+            <div className="h-9 border-b border-[#152238] bg-[#090f1a] px-4 flex items-center gap-2 text-xs font-mono shrink-0">
+              <button
+                onClick={() => setActiveTab('curvature')}
+                className={`px-2.5 py-0.5 rounded text-[11px] ${
+                  activeTab === 'curvature'
+                    ? 'bg-[#123668] border border-sky-500 text-sky-200 font-semibold'
+                    : 'text-slate-400'
+                }`}
+              >
+                Kretschmann Curvature
+              </button>
+              <button
+                onClick={() => setActiveTab('causal')}
+                className={`px-2.5 py-0.5 rounded text-[11px] ${
+                  activeTab === 'causal'
+                    ? 'bg-[#123668] border border-sky-500 text-sky-200 font-semibold'
+                    : 'text-slate-400'
+                }`}
+              >
+                Causal Light Cones
+              </button>
+              <button
+                onClick={() => setActiveTab('orbits')}
+                className={`px-2.5 py-0.5 rounded text-[11px] ${
+                  activeTab === 'orbits'
+                    ? 'bg-[#123668] border border-sky-500 text-sky-200 font-semibold'
+                    : 'text-slate-400'
+                }`}
+              >
+                Timelike Orbits
+              </button>
+            </div>
+            <div className="flex-1 relative">
+              {activeTab === 'causal' ? (
+                <CausalDiagramView />
+              ) : activeTab === 'orbits' ? (
+                <OrbitsView />
+              ) : (
+                <CurvatureView />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 5: Data (SXS Numerical Relativity Waveforms) */}
+        {mainTab === 'data' && (
+          <div className="h-full relative">
+            <SxsComparisonView />
+          </div>
+        )}
       </main>
 
       {/* Modals */}
@@ -381,6 +355,10 @@ export default function App() {
         isOpen={isCurvatureGuideOpen}
         onClose={() => setIsCurvatureGuideOpen(false)}
         onSelectTab={(tab) => setActiveTab(tab)}
+      />
+      <DomainGuideModal
+        isOpen={isDomainModalOpen}
+        onClose={() => setIsDomainModalOpen(false)}
       />
     </div>
   );
